@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Admin Panel</title>
+</head>
+<body style="overflow-y: auto; background: rgba(0,0,0,0.9)">
+    <div style="padding: 40px">
+        <a href="/" class="btn-back">
+            <svg width="18" height="18" viewBox="0 0 512 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+            BACK
+        </a>
+        <h1 style="margin-top: 20px; color: white;">Idea Dashboard</h1>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+            <% ideas.forEach(idea => { %>
+                <div class="card glass" style="padding:20px; border-radius:15px; position:relative; background: rgba(255,255,255,0.05);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <img src="<%= idea.avatar %>" style="width:40px; border-radius:50%; border: 1px solid white;">
+                        <strong style="color: white;"><%= idea.user %></strong>
+                    </div>
+                    <p style="font-size:14px; color:#ccc; min-height: 50px;">"<%= idea.message %>"</p>
+                    
+                    <form action="/delete-idea" method="POST" style="margin-top: 15px; text-align: right;">
+                        <input type="hidden" name="id" value="<%= idea.id %>">
+                        <button type="submit" style="background:#ff4757; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size: 13px; font-weight: bold; transition: 0.3s;">delete</button>
+                    </form>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>

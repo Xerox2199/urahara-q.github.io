@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>AoT Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div id="toast-container"></div>
+    <audio id="bg-music" loop src="/song.mp3"></audio>
+
+    <div class="content-wrapper">
+        <a href="/logout" class="user-profile">
+            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png">
+            <span class="neon-black" style="font-weight:900; margin-left:10px;"><%= user.username %></span>
+        </a>
+
+        <% if (user.id === adminId) { %>
+            <a href="/admin" class="neon-white" style="position:absolute; top:25px; right:25px; padding:10px 25px; font-size:14px; text-decoration:none;">ADMIN</a>
+        <% } %>
+
+        <div class="center-buttons">
+            <button class="neon-white" onclick="openModal('reviewModal')">REVIEW</button>
+            <button class="neon-white" onclick="openModal('ideaModal')">IDEA</button>
+        </div>
+
+        <div class="bottom-left">
+            <button class="discord-blue" onclick="window.open('https://discord.gg/g6YDKApcsf')">Discord</button>
+            <button class="neon-white" style="padding:10px 20px" onclick="location.href='/faq'">FAQ</button>
+        </div>
+    </div>
+
+    <div id="reviewModal" class="modal">
+        <div class="modal-content glass">
+            <h2>SUBMIT REVIEW</h2>
+            <form id="reviewForm">
+                <textarea name="message" placeholder="Your message..." required></textarea>
+                <div class="rating" style="margin: 15px 0;">
+                    <input value="5" name="stars" id="star5" type="radio" checked><label for="star5"></label>
+                    <input value="4" name="stars" id="star4" type="radio"><label for="star4"></label>
+                    <input value="3" name="stars" id="star3" type="radio"><label for="star3"></label>
+                    <input value="2" name="stars" id="star2" type="radio"><label for="star2"></label>
+                    <input value="1" name="stars" id="star1" type="radio"><label for="star1"></label>
+                </div>
+                <input type="file" name="imageFile" accept="image/*" style="font-size: 10px; margin-bottom: 10px;">
+                <div id="revLoader" class="loader"></div>
+                <button type="submit" class="neon-white" style="width: 100%; padding: 15px;">SEND</button>
+                <button type="button" class="btn-mini-close" onclick="closeModal('reviewModal')">Fermer</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="ideaModal" class="modal">
+        <div class="modal-content glass">
+            <h2>SHARE IDEA</h2>
+            <form id="ideaForm">
+                <textarea name="ideaMessage" placeholder="Your idea..." required></textarea>
+                <div id="ideaLoader" class="loader"></div>
+                <button type="submit" class="neon-white" style="width: 100%; padding: 15px; margin-top: 15px;">SEND</button>
+                <button type="button" class="btn-mini-close" onclick="closeModal('ideaModal')">Fermer</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        particlesJS("particles-js", {"particles":{"number":{"value":40},"shape":{"type":"circle"},"opacity":{"value":0.2},"size":{"value":2},"move":{"enable":true,"speed":1,"direction":"bottom"}}});
+        document.addEventListener('click', () => { document.getElementById('bg-music').play(); }, {once: true});
+
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Fonction Toast
+        function showToast(msg, type) {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${msg}</span><span class="toast-close" onclick="this.parentElement.remove()">×</span>`;
+            container.appendChild(t);
+            setTimeout(() => { if(t) t.remove(); }, 6000);
+        }
+
+        // Envoi Review
+        document.getElementById('reviewForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const loader = document.getElementById('revLoader');
+            loader.style.display = 'block';
+            setTimeout(async () => {
+                const res = await fetch('/submit-review', { method: 'POST', body: new FormData(e.target) });
+                loader.style.display = 'none';
+                if (res.status === 403) showToast("You have no the permission to submit a review", "error");
+                else { showToast("Successfull", "success"); closeModal('reviewModal'); }
+            }, 4000);
+        };
+
+        // Envoi Idea
+        document.getElementById('ideaForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const loader = document.getElementById('ideaLoader');
+            loader.style.display = 'block';
+            setTimeout(async () => {
+                const res = await fetch('/submit-idea', { method: 'POST', body: new URLSearchParams(new FormData(e.target)) });
+                loader.style.display = 'none';
+                if (res.ok) { showToast("Successfull", "success"); closeModal('ideaModal'); }
+            }, 4000);
+        };
+    </script>
+</body>
+</html>
